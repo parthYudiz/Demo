@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --coalition-red: #C8102E;
+  --coalition-red-dark: #8B0000;
+  --coalition-gold: #D4AF37;
+  --coalition-gold-bright: #FFD700;
+  --coalition-dark: #0A0A0C;
+  --coalition-card: #141418;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #08080a;
+  color: #f3f4f6;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.font-serif-heading {
+  font-family: 'Cinzel', serif;
+}
+
+.font-timer {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom glowing effects */
+.glow-red {
+  box-shadow: 0 0 25px rgba(200, 16, 46, 0.45);
+}
+
+.glow-gold {
+  box-shadow: 0 0 35px rgba(212, 175, 55, 0.6);
+}
+
+.glow-red-text {
+  text-shadow: 0 0 20px rgba(200, 16, 46, 0.8), 0 0 40px rgba(200, 16, 46, 0.4);
+}
+
+.glow-gold-text {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.9), 0 0 40px rgba(255, 215, 0, 0.5);
+}
+
+.glow-white-text {
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+}
+
+/* Metallic gold gradients */
+.bg-gold-metallic {
+  background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+}
+
+.text-gold-metallic {
+  background: linear-gradient(135deg, #DFAC4A 0%, #FFF3B0 30%, #C99628 60%, #FFF3B0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gold-gradient {
+  border-image: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728) 1;
+}
+
+/* Kiosk cursor hide utility */
+.cursor-none-kiosk {
+  cursor: none !important;
+}
+
+/* Subtle background marble/courtroom pattern */
+.bg-courtroom-pattern {
+  background-color: #0a0a0c;
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(200, 16, 46, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
+    linear-gradient(to bottom, rgba(10, 10, 12, 0.9) 0%, rgba(18, 18, 22, 0.95) 100%);
+}
+
+/* Pulse keyframes for Attract mode */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes floatSign {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: floatSign 4s ease-in-out infinite;
+}
+
+/* Custom scrollbars for stats modal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #141418;
+}
+::-webkit-scrollbar-thumb {
+  background: #33333d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c8102e;
+}

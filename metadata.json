@@ -1,0 +1,6 @@
+{
+  "name": "9-3 Verdict Challenge",
+  "description": "Interactive convention booth game and kiosk for Coalition Court Reporters - 0.93 Verdict Challenge",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
