@@ -1,12 +1,11 @@
 import React from 'react';
-import { Maximize, Settings, FileText, Trophy, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { Maximize, Settings, Trophy, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { GameSettings, GameStats } from '../types';
 
 interface HeaderBarProps {
   settings: GameSettings;
   stats: GameStats;
   onOpenSettings: () => void;
-  onOpenProposal: () => void;
   onOpenLeaderboard: () => void;
   onToggleSound: () => void;
   onToggleOrientation: () => void;
@@ -17,7 +16,6 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
   settings,
   stats,
   onOpenSettings,
-  onOpenProposal,
   onOpenLeaderboard,
   onToggleSound,
   onToggleOrientation,
@@ -52,23 +50,12 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
           THE 9-3 VERDICT CHALLENGE
         </span>
         <span className="text-[10px] bg-red-600 text-white font-bold px-2 py-0.5 rounded-full">
-          TARGET: 0.93s
+          TARGET: 0.93
         </span>
       </div>
 
       {/* Action Controls */}
       <div className="flex items-center space-x-2 md:space-x-3">
-        {/* Client Proposal Button (Highlighted in Gold) */}
-        <button
-          onClick={onOpenProposal}
-          id="btn-client-proposal"
-          className="flex items-center space-x-1.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-zinc-950 font-bold text-xs md:text-sm px-3 py-1.5 rounded-lg shadow-md transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-          title="View 0.93 Proposal & Technical Spec"
-        >
-          <FileText className="w-4 h-4 text-zinc-950" />
-          <span className="hidden sm:inline">Proposal & Spec</span>
-        </button>
-
         {/* Leaderboard Button */}
         <button
           onClick={onOpenLeaderboard}

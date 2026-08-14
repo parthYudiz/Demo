@@ -10,6 +10,7 @@ interface SettingsModalProps {
   stats: GameStats;
   onSaveSettings: (newSettings: GameSettings) => void;
   onExportCSV: () => void;
+  onExportXLSX: () => void;
   onClearStats: () => void;
 }
 
@@ -20,6 +21,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   stats,
   onSaveSettings,
   onExportCSV,
+  onExportXLSX,
   onClearStats,
 }) => {
   if (!isOpen) return null;
@@ -353,16 +355,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  onClick={onExportXLSX}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-xs uppercase shadow-md transition-all"
+                >
+                  <Download className="w-4 h-4" /> Export All Data (.XLSX)
+                </button>
                 <button
                   onClick={onExportCSV}
-                  className="flex-1 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-xs uppercase"
+                  className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-xs uppercase shadow-md transition-all"
                 >
                   <Download className="w-4 h-4" /> Export Plays to CSV
                 </button>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-800 flex justify-end">
                 <button
                   onClick={onClearStats}
-                  className="bg-red-950 hover:bg-red-900 border border-red-800 text-red-300 font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-xs uppercase"
+                  className="bg-red-950/60 hover:bg-red-900 border border-red-800/80 text-red-300 font-semibold py-2 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-xs uppercase transition-colors"
                 >
                   <Trash2 className="w-4 h-4" /> Clear History
                 </button>

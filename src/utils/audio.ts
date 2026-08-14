@@ -166,6 +166,10 @@ class SoundEngine {
     });
   }
 
+  public playDefenseSound(volume: number = 0.8) {
+    this.playTooLowSound(volume);
+  }
+
   public playTooLowSound(volume: number = 0.8) {
     const ctx = this.getContext();
     if (!ctx) return;

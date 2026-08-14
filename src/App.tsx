@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GameState, GameSettings, GameStats, PlayRecord, ResultCategory } from './types';
-import { loadSettings, saveSettings, loadStats, saveStats, recordPlay, exportStatsCSV, DEFAULT_STATS } from './utils/storage';
+import {
+  loadSettings,
+  saveSettings,
+  loadStats,
+  saveStats,
+  recordPlay,
+  exportStatsCSV,
+  exportStatsXLSX,
+  addPlaintiffWinner,
+  removePlaintiffWinner,
+  DEFAULT_STATS,
+} from './utils/storage';
 import { soundEngine } from './utils/audio';
 
 import { HeaderBar } from './components/HeaderBar';
@@ -8,9 +19,9 @@ import { GaugeDisplay } from './components/GaugeDisplay';
 import { ArcadeButton } from './components/ArcadeButton';
 import { ResultOverlay } from './components/ResultOverlay';
 import { SettingsModal } from './components/SettingsModal';
-import { ClientProposalModal } from './components/ClientProposalModal';
 import { LeaderboardDrawer } from './components/LeaderboardDrawer';
 import { BoothStandSign } from './components/BoothStandSign';
+import { PlaintiffVerdictsTicker } from './components/PlaintiffVerdictsTicker';
 
 export default function App() {
   const [settings, setSettings] = useState<GameSettings>(loadSettings);
@@ -22,7 +33,6 @@ export default function App() {
 
   // Modals & Drawers
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isProposalOpen, setIsProposalOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   // Timing refs
@@ -52,22 +62,19 @@ export default function App() {
     const numericFormatted = parseFloat(formattedScore);
     const diff = score - settings.targetTime;
 
-    let resultCat: ResultCategory = 'TOO_LOW';
+    let resultCat: ResultCategory = 'DEFENSE_VERDICT';
     if (Math.abs(score - settings.targetTime) <= settings.perfectTolerance || numericFormatted === 0.93) {
       resultCat = 'PERFECT_WIN';
     } else if (score >= settings.nearMissLow && score <= settings.nearMissHigh) {
       resultCat = 'NEAR_MISS';
-    } else if (score < settings.nearMissLow) {
-      resultCat = 'TOO_LOW';
     } else {
-      resultCat = 'TOO_HIGH';
+      resultCat = 'DEFENSE_VERDICT';
     }
 
     if (settings.soundEnabled) {
       if (resultCat === 'PERFECT_WIN') soundEngine.playWinFanfare(settings.masterVolume);
       else if (resultCat === 'NEAR_MISS') soundEngine.playNearMissSound(settings.masterVolume);
-      else if (resultCat === 'TOO_LOW') soundEngine.playTooLowSound(settings.masterVolume);
-      else soundEngine.playTooHighSound(settings.masterVolume);
+      else soundEngine.playDefenseSound(settings.masterVolume);
     }
 
     const newRecord: PlayRecord = {
@@ -146,7 +153,7 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if user is typing in an input field or modal is open
-      if (isSettingsOpen || isProposalOpen || isLeaderboardOpen) return;
+      if (isSettingsOpen || isLeaderboardOpen) return;
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       // Hotkeys for admin controls
@@ -156,7 +163,6 @@ export default function App() {
       }
       if (e.key === 'Escape') {
         if (isSettingsOpen) setIsSettingsOpen(false);
-        if (isProposalOpen) setIsProposalOpen(false);
         if (isLeaderboardOpen) setIsLeaderboardOpen(false);
         return;
       }
@@ -176,16 +182,26 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [settings.triggerKey, gameState, handleTrigger, isSettingsOpen, isProposalOpen, isLeaderboardOpen]);
+  }, [settings.triggerKey, gameState, handleTrigger, isSettingsOpen, isLeaderboardOpen]);
 
-  // Save Player Name in Result
-  const handleSavePlayerName = (recordId: string, name: string) => {
-    const updatedHistory = stats.recentHistory.map((rec) =>
-      rec.id === recordId ? { ...rec, playerName: name } : rec
+  // Save Plaintiff Winner
+  const handleSavePlaintiffWinner = (name: string, lawFirm: string, email: string) => {
+    setStats((prevStats) =>
+      addPlaintiffWinner(
+        {
+          name,
+          lawFirm,
+          email,
+          timeFormatted: '0.93',
+        },
+        prevStats
+      )
     );
-    const updatedStats = { ...stats, recentHistory: updatedHistory };
-    setStats(updatedStats);
-    saveStats(updatedStats);
+  };
+
+  // Remove Plaintiff Winner
+  const handleRemoveWinner = (winnerId: string) => {
+    setStats((prevStats) => removePlaintiffWinner(winnerId, prevStats));
   };
 
   // Sound toggle helper
@@ -231,16 +247,21 @@ export default function App() {
         settings={settings}
         stats={stats}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenProposal={() => setIsProposalOpen(true)}
         onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
         onToggleSound={handleToggleSound}
         onToggleOrientation={handleToggleOrientation}
         onToggleFullscreen={handleToggleFullscreen}
       />
 
+      {/* Today's Plaintiff Verdicts Marquee / Ticker */}
+      <PlaintiffVerdictsTicker
+        winners={stats.plaintiffWinners || []}
+        onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
+      />
+
       {/* Main Display Stage View (Adapts to Landscape / Portrait) */}
-      <main className={`flex-1 flex flex-col items-center justify-center py-4 px-2 w-full transition-all ${
-        settings.orientation === 'portrait' ? 'max-w-lg mx-auto border-x border-amber-500/20 py-8' : 'max-w-6xl mx-auto'
+      <main className={`flex-1 flex flex-col items-center justify-center py-2 px-2 w-full transition-all ${
+        settings.orientation === 'portrait' ? 'max-w-lg mx-auto border-x border-amber-500/20 py-6' : 'max-w-6xl mx-auto'
       }`}>
         {/* Tabletop Instruction Signage */}
         <BoothStandSign prizeTitle={settings.prizeTitle} />
@@ -267,7 +288,7 @@ export default function App() {
           <span className="font-medium text-zinc-300">Coalition Court Reporters • Las Vegas Booth Kiosk</span>
         </div>
         <div className="text-[11px] font-mono text-zinc-400">
-          Target: <strong className="text-amber-400">0.93s</strong> • Press [Space / Enter] or Tap Arcade Button
+          Target: <strong className="text-amber-400">0.93</strong> • Press [Space / Enter] or Tap Red Button
         </div>
       </footer>
 
@@ -277,15 +298,10 @@ export default function App() {
           record={currentRecord}
           settings={settings}
           onReset={resetToIdle}
-          onSavePlayerName={handleSavePlayerName}
+          onSavePlaintiffWinner={handleSavePlaintiffWinner}
+          onExportXLSX={() => exportStatsXLSX(stats)}
         />
       )}
-
-      {/* Client Proposal Modal (Answers prompt requirement starting with 0.93) */}
-      <ClientProposalModal
-        isOpen={isProposalOpen}
-        onClose={() => setIsProposalOpen(false)}
-      />
 
       {/* Admin Settings Modal */}
       <SettingsModal
@@ -295,6 +311,7 @@ export default function App() {
         stats={stats}
         onSaveSettings={handleSaveSettings}
         onExportCSV={() => exportStatsCSV(stats)}
+        onExportXLSX={() => exportStatsXLSX(stats)}
         onClearStats={handleClearStats}
       />
 
@@ -304,7 +321,11 @@ export default function App() {
         onClose={() => setIsLeaderboardOpen(false)}
         stats={stats}
         onExportCSV={() => exportStatsCSV(stats)}
+        onExportXLSX={() => exportStatsXLSX(stats)}
+        onAddWinner={handleSavePlaintiffWinner}
+        onRemoveWinner={handleRemoveWinner}
       />
     </div>
   );
 }
+
